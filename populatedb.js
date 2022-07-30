@@ -92,7 +92,7 @@ function bookInstanceCreate(book, imprint, dueBack, status, cb) {
     let bookInstanceDetail = {
         book,
         imprint
-    }    
+    };
     if (dueBack != false) bookInstanceDetail.dueBack = dueBack;
     if (status != false) bookInstanceDetail.status = status;
     
@@ -104,7 +104,7 @@ function bookInstanceCreate(book, imprint, dueBack, status, cb) {
             return;
         }
         console.log('New BookInstance: ' + bookInstance);
-        bookInstances.push(bookInstance)
+        bookInstances.push(bookInstance);
         cb(null, book);
   });
 }
@@ -228,5 +228,5 @@ function(err, results) {
         
     }
     // All done, disconnect from database
-    mongoose.connection.close();
+    db.close();
 });
