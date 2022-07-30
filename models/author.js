@@ -1,8 +1,7 @@
-const { default: mongoose } = require('mongoose');
+const mongoose = require('mongoose');
 
-const Schema = require('mongoose').Schema;
+const Schema = mongoose.Schema;
 
-// author schema
 const AuthorSchema = new Schema({
     firstName: {
         type: String, 
@@ -58,5 +57,5 @@ AuthorSchema
         return '/catalog/author/' + this._id;
     });
 
-// export model
+
 module.exports = mongoose.model('Author', AuthorSchema);

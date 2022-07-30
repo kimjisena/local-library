@@ -3,6 +3,7 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const mongoose = require('mongoose');
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
@@ -10,11 +11,10 @@ const usersRouter = require('./routes/users');
 const app = express();
 
 // set up mongoose connection
-const mongoose = require('mongoose');
-const mongoDB = 'mongodb+srv://kimjisena:jt31x7FfLRnU5iwD@clustero.pkemxgq.mongodb.net/local_library?retryWrites=true&w=majority';
-mongoose.connect(mongoDB, { useNewUrlParser: true , useUnifiedTopology: true});
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+const uri = 'mongodb+srv://kimjisena:jt31x7FfLRnU5iwD@clustero.pkemxgq.mongodb.net/local_library?retryWrites=true&w=majority';
+mongoose.connect(uri, { useNewUrlParser: true , useUnifiedTopology: true});
+const dbConnection = mongoose.connection;
+dbConnection.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 
 // view engine setup
