@@ -1,7 +1,7 @@
 const async = require('async');
 
 const Book = require('../models/book');
-const BookInstance = require('../models/bookInstance');
+const BookInstance = require('../models/book-instance');
 const Genre = require('../models/genre');
 const Author = require('../models/author');
 
@@ -28,8 +28,16 @@ function index (req, res) {
 }
 
 // display a list of all books
-function bookList (req, res) {
-    res.send('Not Implemented: Book list');
+function bookList (req, res, next) {
+
+    Book.find({}, 'title author')
+        .sort({title : 1})
+        .populate('author')
+        .exec(function (err, bookList) {
+            if (err) { return next(err); }
+            //Successful, so render
+            res.render('book-list', { title: 'Book List', bookList });
+        });
 }
 
 // display detail page for a specific book
