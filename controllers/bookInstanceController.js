@@ -1,22 +1,22 @@
 const BookInstance = require('../models/bookInstance');
 
 // display a list of all bookinstaces
-function bookInstaceList (req, res) {
+function bookInstanceList (req, res) {
     res.send('Not Implemented: BookInstance list');
 }
 
 // display detail page for a specific bookinstance
-function bookInstaceDetail (req, res) {
+function bookInstanceDetail (req, res) {
     res.send('Not Implemented: BookInstance detail: ' + req.params.id);
 }
 
 // display BookInstance create form on GET
-function bookInstaceCreateGet (req, res) {
+function bookInstanceCreateGet (req, res) {
     res.send('Not Implemented: BookInstance create GET');
 }
 
 // handle BookInstance create on POST
-function bookInstaceCreatePost (req, res) {
+function bookInstanceCreatePost (req, res) {
     res.send('Not Implemented: BookInstance create POST');
 }
 
@@ -42,10 +42,10 @@ function bookInstanceUpdatePost (req, res) {
 
 
 module.exports = {
-    bookInstaceList,
-    bookInstaceDetail,
-    bookInstaceCreateGet,
-    bookInstaceCreatePost,
+    bookInstanceList,
+    bookInstanceDetail,
+    bookInstanceCreateGet,
+    bookInstanceCreatePost,
     bookInstanceDeleteGet,
     bookInstanceDeletePost,
     bookInstanceUpdateGet,
