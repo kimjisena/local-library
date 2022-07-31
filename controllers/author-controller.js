@@ -2,7 +2,13 @@ const Author = require('../models/author');
 
 // display a list of all authors
 function authorList (req, res) {
-    res.send('Not Implemented: Author list');
+    Author.find()
+        .sort([['familyName', 'ascending']])
+        .exec(function (err, authorList) {
+            if (err) { return next(err); }
+            // successful, so render
+            res.render('author-list', { title: 'Author List', authorList });
+    });
 }
 
 // display detail page for a specific author
