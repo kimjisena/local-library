@@ -170,7 +170,26 @@ const bookCreatePost = [
 
 // display Book delete form on GET
 function bookDeleteGet (req, res) {
-    res.send('Not Implemented: Book delete GET');
+    
+    async.parallel({
+        book(callback) {
+            Book.findById(req.params.id).exec(callback);
+        },
+        bookInstances(callback) {
+            BookInstance.find({ 'book': req.params.id }).exec(callback);
+        },
+    }, function(err, results) {
+        if (err) { 
+            return next(err); 
+        }
+        if (results.book === null) { // no results
+            res.redirect('/catalog/books');
+        }
+
+        // successful, so render
+        res.render('book-delete', { title: 'Delete Book', book: results.book, bookInstances: results.bookInstances });
+    });
+
 }
 
 // handle Book delete on POST
