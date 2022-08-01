@@ -1,6 +1,7 @@
 const Author = require('../models/author');
 const async = require('async');
 const Book = require('../models/book');
+const { body, validationResult } = require('express-validator');
 
 // display a list of all authors
 function authorList (req, res) {
@@ -44,14 +45,64 @@ function authorDetail (req, res, next) {
 }
 
 // display Author create form on GET
-function authorCreateGet (req, res) {
-    res.send('Not Implemented: Author create GET');
+function authorCreateGet (req, res, next) {
+    res.render('author-form', { title: 'Create Author'});
 }
 
 // handle Author create on POST
-function authorCreatePost (req, res) {
-    res.send('Not Implemented: Author create POST');
-}
+const authorCreatePost = [
+
+    // validate and sanitize fields
+    body('firstName').trim().isLength({ min: 1 }).escape().withMessage('First name must be specified.')
+        .isAlphanumeric().withMessage('First name has non-alphanumeric characters.'),
+    body('familyName').trim().isLength({ min: 1 }).escape().withMessage('Family name must be specified.')
+        .isAlphanumeric().withMessage('Family name has non-alphanumeric characters.'),
+    body('dateOfBirth', 'Invalid date of birth').optional({ checkFalsy: true }).isISO8601().toDate(),
+    body('dateOfDeath', 'Invalid date of death').optional({ checkFalsy: true }).isISO8601().toDate(),
+
+    // process request after validation and sanitization
+    (req, res, next) => {
+
+        // extract the validation errors from a request
+        const errors = validationResult(req);
+
+        // create an Author object with escaped and trimmed data.
+        const author = new Author({
+            firstName: req.body.firstName,
+            familyName: req.body.familyName,
+            dateOfBirth: req.body.dateOfBirth,
+            dateOfDeath: req.body.dateOfDeath
+        });
+
+        if (!errors.isEmpty()) {
+            // there are errors, render form again with sanitized values/errors messages
+            res.render('author-form', { title: 'Create Author', author: req.body, errors: errors.array() });
+            return;
+        }
+        else {
+            // data from form is valid.
+            Author
+                .findOne({firstName: req.body.firstName, familyName: req.body.familyName})
+                .exec(function(err, foundAuthor) {
+                    if (err) {
+                        return next(err);
+                    }
+                    if (foundAuthor) {
+                        // author exists, redirect to its detail page
+                        res.redirect(foundAuthor.url);
+                    } else {
+                        author.save(function (err) {
+                            if (err) { 
+                                return next(err); 
+                            }
+                            // successful - redirect to new author record
+                            res.redirect(author.url);
+                        });
+                    }
+                });
+        }
+    }
+];
 
 // display Author delete form on GET
 function authorDeleteGet (req, res) {
