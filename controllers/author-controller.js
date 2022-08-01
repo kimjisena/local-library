@@ -105,13 +105,60 @@ const authorCreatePost = [
 ];
 
 // display Author delete form on GET
-function authorDeleteGet (req, res) {
-    res.send('Not Implemented: Author delete GET');
+function authorDeleteGet (req, res, next) {
+    
+    async.parallel({
+        author(callback) {
+            Author.findById(req.params.id).exec(callback);
+        },
+        authorBooks(callback) {
+            Book.find({ 'author': req.params.id }).exec(callback);
+        },
+    }, function(err, results) {
+        if (err) { 
+            return next(err); 
+        }
+        if (results.author === null) { // no results
+            res.redirect('/catalog/authors');
+        }
+
+        // successful, so render
+        res.render('author-delete', { title: 'Delete Author', author: results.author, authorBooks: results.authorBooks });
+    });
+
 }
 
 // handle Author delete on POST
-function authorDeletePost (req, res) {
-    res.send('Not Implemented: Author delete POST');
+function authorDeletePost (req, res, next) {
+    
+    async.parallel({
+        author(callback) {
+          Author.findById(req.body.authorId).exec(callback);
+        },
+        authorBooks(callback) {
+          Book.find({ 'author': req.body.authorId }).exec(callback);
+        },
+    }, function(err, results) {
+        if (err) { 
+            return next(err); 
+        }
+        // success
+        if (results.authorBooks.length > 0) {
+            // author has books, render in same way as for GET route
+            res.render('author-delete', { title: 'Delete Author', author: results.author, authorBooks: results.authorBooks });
+            return;
+        }
+        else {
+            // author has no books, delete object and redirect to the list of authors
+            Author.findByIdAndRemove(req.body.authorId, function deleteAuthor(err) {
+                if (err) { 
+                    return next(err); 
+                }
+                // success - go to author list
+                res.redirect('/catalog/authors');
+            });
+        }
+    });
 }
 
 // display Author update form on GET
