@@ -42,11 +42,11 @@ AuthorSchema
     .get(function () {
         let lifetimeString = '';
         if (this.dateOfBirth) {
-            lifetimeString = this.dateOfBirth.getFullYear().toString();
+            lifetimeString = DateTime.fromJSDate(this.dateOfBirth).toLocaleString(DateTime.DATE_MED);
         }
         lifetimeString += ' - ';
         if (this.dateOfDeath) {
-            lifetimeString += this.dateOfDeath.getFullYear().toString();
+            lifetimeString += DateTime.fromJSDate(this.dateOfDeath).toLocaleString(DateTime.DATE_MED);
         }
         return lifetimeString;
     });
@@ -56,24 +56,6 @@ AuthorSchema
     .virtual('url')
     .get(function () {
         return '/catalog/author/' + this._id;
-    });
-
-// virtual field for author's formatted date of birth
-AuthorSchema
-    .virtual('fDateOfBirth')
-    .get(function () {
-        return this.dateOfBirth 
-            ? DateTime.fromJSDate(this.dateOfBirth).toLocaleString(DateTime.DATE_MED)
-            : '';
-    });
-
-// virtual field for author's formatted date of death
-AuthorSchema
-    .virtual('fDateOfDeath')
-    .get(function () {
-        return this.dateOfDeath 
-            ? DateTime.fromJSDate(this.dateOfDeath).toLocaleString(DateTime.DATE_MED)
-            : '';
     });
 
 module.exports = mongoose.model('Author', AuthorSchema);
