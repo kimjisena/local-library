@@ -13,12 +13,11 @@ const catalogRouter = require('./routes/catalog');
 // create express app
 const app = express();
 
-// set up mongoose connection
+// set up mongodb connection
 const uri = process.env.MDB_URI;
 mongoose.connect(uri, { useNewUrlParser: true , useUnifiedTopology: true});
 const dbConnection = mongoose.connection;
 dbConnection.on('error', console.error.bind(console, 'MongoDB connection error:'));
-
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
