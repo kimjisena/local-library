@@ -4,6 +4,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mongoose = require('mongoose');
+require('dotenv').config();
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
@@ -13,7 +14,7 @@ const catalogRouter = require('./routes/catalog');
 const app = express();
 
 // set up mongoose connection
-const uri = '';
+const uri = process.env.MDB_URI;
 mongoose.connect(uri, { useNewUrlParser: true , useUnifiedTopology: true});
 const dbConnection = mongoose.connection;
 dbConnection.on('error', console.error.bind(console, 'MongoDB connection error:'));
