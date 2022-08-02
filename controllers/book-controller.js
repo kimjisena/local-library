@@ -169,7 +169,7 @@ const bookCreatePost = [
 ];
 
 // display Book delete form on GET
-function bookDeleteGet (req, res) {
+function bookDeleteGet (req, res, next) {
     
     async.parallel({
         book(callback) {
@@ -194,7 +194,35 @@ function bookDeleteGet (req, res) {
 
 // handle Book delete on POST
 function bookDeletePost (req, res) {
-    res.send('Not Implemented: Book delete POST');
+    
+    async.parallel({
+        book(callback) {
+            Book.findById(req.params.id).exec(callback);
+        },
+        bookInstances(callback) {
+            BookInstance.find({ 'book': req.params.id }).exec(callback);
+        },
+    }, function(err, results) {
+        if (err) { 
+            return next(err); 
+        }
+        // success
+        if (results.bookInstances.length > 0) {
+            // book has copies, render in same way as for GET route
+            res.render('book-delete', { title: 'Delete Book', book: results.book, bookInstances: results.bookInstances });
+            return;
+        }
+        else {
+            // book has no copies, delete object and redirect to the list of books
+            Book.findByIdAndRemove(req.body.bookId, function deleteBook(err) {
+                if (err) { 
+                    return next(err); 
+                }
+                // success - go to author list
+                res.redirect('/catalog/books');
+            });
+        }
+    });
 }
 
 // display Book update form on GET

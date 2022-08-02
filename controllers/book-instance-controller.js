@@ -94,13 +94,55 @@ const bookInstanceCreatePost = [
 ];
 
 // display BookInstance delete form on GET
-function bookInstanceDeleteGet (req, res) {
-    res.send('Not Implemented: BookInstance delete GET');
+function bookInstanceDeleteGet (req, res, next) {
+
+    BookInstance
+        .findById(req.params.id)
+        .populate('book')
+        .exec(function (err, bookInstance) {
+            if (err) { 
+                return next(err); 
+            }
+
+            if (bookInstance === null) { // no results
+                const err = new Error('Book copy not found');
+                err.status = 404;
+                return next(err);
+            }
+
+            // successful, so render
+            res.render('book-instance-delete', { title: 'Delete Book Instance', bookInstance});
+        });
+
 }
 
 // handle BookInstance delete on POST
-function bookInstanceDeletePost (req, res) {
-    res.send('Not Implemented: BookInstance delete POST');
+function bookInstanceDeletePost (req, res, next) {
+
+    BookInstance
+    .findById(req.params.id)
+    .populate('book')
+    .exec(function (err, bookInstance) {
+        if (err) { 
+            return next(err); 
+        }
+
+        if (bookInstance === null) { // no results
+            const err = new Error('Book copy not found');
+            err.status = 404;
+            return next(err);
+        }
+
+        // successful, so delete
+        BookInstance
+            .findByIdAndRemove(req.params.id, function deleteBook(err) {
+            if (err) { 
+                return next(err); 
+            }
+            // success - go to book instances list
+            res.redirect('/catalog/bookinstances');
+        });
+    });
 }
 
 // display BookInstance update form on GET
