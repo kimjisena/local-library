@@ -98,13 +98,53 @@ const genreCreatePost = [
   ];
 
 // display Genre delete form on GET
-function genreDeleteGet (req, res) {
-    res.send('Not Implemented: Genre delete GET');
+function genreDeleteGet (req, res, next) {
+    
+    Genre
+        .findById(req.params.id)
+        .exec(function (err, genre) {
+            if (err) { 
+            return next(err); 
+            }
+
+            if (genre === null) { // no results
+                const err = new Error('Genre not found');
+                err.status = 404;
+                return next(err);
+            }
+
+      // successful, so render
+      res.render('genre-delete', { title: 'Delete Genre', genre});
+  });
+
 }
 
 // handle Genre delete on POST
-function genreDeletePost (req, res) {
-    res.send('Not Implemented: Genre delete POST');
+function genreDeletePost (req, res, next) {
+
+    Genre
+        .findById(req.params.id)
+    .exec(function (err, genre) {
+        if (err) { 
+            return next(err); 
+        }
+
+        if (genre === null) { // no results
+            const err = new Error('Genre not found');
+            err.status = 404;
+            return next(err);
+        }
+
+        // successful, so delete
+        Genre
+            .findByIdAndRemove(req.params.id, function deleteGenre(err) {
+            if (err) { 
+                return next(err); 
+            }
+            // success - go to genres list
+            res.redirect('/catalog/genres');
+        });
+    });
 }
 
 // display Genre update form on GET

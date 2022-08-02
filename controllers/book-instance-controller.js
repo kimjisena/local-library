@@ -135,7 +135,7 @@ function bookInstanceDeletePost (req, res, next) {
 
         // successful, so delete
         BookInstance
-            .findByIdAndRemove(req.params.id, function deleteBook(err) {
+            .findByIdAndRemove(req.params.id, function deleteBookInstance(err) {
             if (err) { 
                 return next(err); 
             }
