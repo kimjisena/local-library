@@ -210,12 +210,12 @@ const authorUpdatePost = [
         } else {
             // data from form is valid
             Author
-                .findByIdAndUpdate(req.params.id, author, {}, function (err, theauthor) {
+                .findByIdAndUpdate(req.params.id, author, {}, function (err, theAuthor) {
                     if (err) { 
                         return next(err); 
                     }
                        // successful - redirect to author detail page
-                       res.redirect(theauthor.url);
+                       res.redirect(theAuthor.url);
             });
         }
     }

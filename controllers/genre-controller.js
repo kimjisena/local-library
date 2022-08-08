@@ -148,14 +148,69 @@ function genreDeletePost (req, res, next) {
 }
 
 // display Genre update form on GET
-function genreUpdateGet (req, res) {
-    res.send('Not Implemented: Genre update GET');
+function genreUpdateGet (req, res, next) {
+    Genre.findById(req.params.id)
+      .exec((err, genre) => {
+        if (err) {
+          return next(err);
+        }
+
+        if (genre === null) { // no results
+          const err = new Error('Author not found');
+          err.status = 404;
+          return next(err);
+        }
+
+        res.render("genre-form", { title: "Update Genre", genre });
+    });
 }
 
 // handle Genre update on POST
-function genreUpdatePost (req, res) {
-    res.send('Not Implemented: Genre update POST');
-}
+const genreUpdatePost = [
+  // validate and sanitize the name field
+  body("name", "Genre name required").trim().isLength({ min: 1 }).escape(),
+
+  // process request after validation and sanitization
+  (req, res, next) => {
+    // extract the validation errors from a request
+    const errors = validationResult(req);
+
+    // create a genre object with escaped and trimmed data
+    const genre = new Genre({ name: req.body.name, _id: req.params.id });
+
+    if (!errors.isEmpty()) {
+      // there are errors, render the form again with sanitized values/error messages
+      res.render("genre-form", {
+        title: "Create Genre",
+        genre,
+        errors: errors.array(),
+      });
+      return;
+    } else {
+      // data from form is valid
+      // check if Genre with same name already exists
+      Genre.findOne({ name: req.body.name }).exec((err, foundGenre) => {
+        if (err) {
+          return next(err);
+        }
+
+        if (foundGenre) {
+          // Genre exists, redirect to its detail page
+          res.redirect(foundGenre.url);
+        } else {
+          Genre.findByIdAndUpdate(req.params.id, genre, {}, (err, theGenre) => {
+            if (err) {
+              return next(err);
+            }
+
+            // successful - redirect to updated genre
+            res.redirect(theGenre.url);
+          });
+        }
+      });
+    }
+  },
+];
 
 module.exports = {
     genreList,
