@@ -78,8 +78,7 @@ const authorCreatePost = [
             // there are errors, render form again with sanitized values/errors messages
             res.render('author-form', { title: 'Create Author', author: req.body, errors: errors.array() });
             return;
-        }
-        else {
+        } else {
             // data from form is valid.
             Author
                 .findOne({firstName: req.body.firstName, familyName: req.body.familyName})
@@ -147,8 +146,7 @@ function authorDeletePost (req, res, next) {
             // author has books, render in same way as for GET route
             res.render('author-delete', { title: 'Delete Author', author: results.author, authorBooks: results.authorBooks });
             return;
-        }
-        else {
+        } else {
             // author has no books, delete object and redirect to the list of authors
             Author.findByIdAndRemove(req.body.authorId, function deleteAuthor(err) {
                 if (err) { 
@@ -162,14 +160,66 @@ function authorDeletePost (req, res, next) {
 }
 
 // display Author update form on GET
-function authorUpdateGet (req, res) {
-    res.send('Not Implemented: Author update GET');
+function authorUpdateGet (req, res, next) {
+    
+    Author.findById(req.params.id)
+        .exec((err, author) => {
+            if (err) { 
+                return next(err); 
+            }
+            if (author === null) { // no results
+                const err = new Error('Author not found');
+                err.status = 404;
+                return next(err);
+            }
+
+            res.render('author-form', { title: 'Update Author', author});
+        });
 }
 
 // handle Author update on POST
-function authorUpdatePost (req, res) {
-    res.send('Not Implemented: Author update POST');
-}
+const authorUpdatePost = [
+
+    // validate and sanitize fields
+    body('firstName').trim().isLength({ min: 1 }).escape().withMessage('First name must be specified.')
+        .isAlphanumeric().withMessage('First name has non-alphanumeric characters.'),
+    body('familyName').trim().isLength({ min: 1 }).escape().withMessage('Family name must be specified.')
+        .isAlphanumeric().withMessage('Family name has non-alphanumeric characters.'),
+    body('dateOfBirth', 'Invalid date of birth').optional({ checkFalsy: true }).isISO8601().toDate(),
+    body('dateOfDeath', 'Invalid date of death').optional({ checkFalsy: true }).isISO8601().toDate(),
+
+    // process request after validation and sanitization
+    (req, res, next) => {
+
+        // extract the validation errors from a request
+        const errors = validationResult(req);
+
+        // create an Author object with escaped and trimmed data.
+        const author = new Author({
+            firstName: req.body.firstName,
+            familyName: req.body.familyName,
+            dateOfBirth: req.body.dateOfBirth,
+            dateOfDeath: req.body.dateOfDeath,
+            _id: req.params.id
+        });
+
+        if (!errors.isEmpty()) {
+            // there are errors, render form again with sanitized values/errors messages
+            res.render('author-form', { title: 'Create Author', author: req.body, errors: errors.array() });
+            return;
+        } else {
+            // data from form is valid
+            Author
+                .findByIdAndUpdate(req.params.id, author, {}, function (err, theauthor) {
+                    if (err) { 
+                        return next(err); 
+                    }
+                       // successful - redirect to author detail page
+                       res.redirect(theauthor.url);
+            });
+        }
+    }
+];
 
 module.exports = {
     authorList,
